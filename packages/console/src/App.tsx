@@ -207,13 +207,56 @@ export default function App() {
     const google = (window as any).google;
     if (!google || !google.maps) return;
 
-    const initialLat = selectedBillboard ? selectedBillboard.lat : (panoLat ?? 12.956948);
-    const initialLng = selectedBillboard ? selectedBillboard.lng : (panoLng ?? 77.701502);
-    const initialHeading = selectedBillboard ? (selectedBillboard.observed_bearing ?? selectedBillboard.orientation_degrees) : (panoHeading || 0);
+    let initialLat = panoLat ?? 12.956948;
+    let initialLng = panoLng ?? 77.701502;
+    let initialHeading = panoHeading || 0;
+    let initialPitch = panoPitch || 0;
+
+    if (selectedBillboard) {
+      initialLat = selectedBillboard.lat;
+      initialLng = selectedBillboard.lng;
+      initialHeading = selectedBillboard.observed_bearing ?? selectedBillboard.orientation_degrees;
+      let solved = false;
+
+      if (selectedBillboard.streetview_image_path) {
+        // Filenames look like: billboardId_roadLat_roadLng.jpg
+        const match = selectedBillboard.streetview_image_path.match(/_(-?\d+\.\d+)_(-?\d+\.\d+)\.jpg$/);
+        if (match) {
+          initialLat = parseFloat(match[1]);
+          initialLng = parseFloat(match[2]);
+          // Calculate heading/pitch from the snapped road coordinates back to the billboard
+          const cameraHeight = 1.5;
+          const dy = selectedBillboard.lat - initialLat;
+          const dx = (selectedBillboard.lng - initialLng) * Math.cos(initialLat * Math.PI / 180);
+          let bearingToBb = Math.atan2(dx, dy) * 180 / Math.PI;
+          if (bearingToBb < 0) bearingToBb += 360;
+
+          initialHeading = bearingToBb;
+          
+          // Pitch vertical angle calculation
+          const distDegrees = Math.sqrt(dx * dx + dy * dy);
+          const distMeters = distDegrees * 111111;
+          const hDiff = selectedBillboard.height_agl - cameraHeight;
+          initialPitch = (Math.atan2(hDiff, distMeters) * 180) / Math.PI;
+          solved = true;
+        }
+      }
+
+      // Fallback to calculated offset (30m in front of billboard face normal)
+      if (!solved) {
+        const bearing = selectedBillboard.observed_bearing ?? selectedBillboard.orientation_degrees;
+        const rad = (bearing * Math.PI) / 180;
+        const offsetDistance = 30; // 30 meters
+        initialLat = selectedBillboard.lat + (offsetDistance * Math.cos(rad)) / 111111;
+        initialLng = selectedBillboard.lng + (offsetDistance * Math.sin(rad)) / (111111 * Math.cos(selectedBillboard.lat * Math.PI / 180));
+        initialHeading = (bearing + 180) % 360;
+        initialPitch = 10; // slightly tilted up
+      }
+    }
 
     const pano = new google.maps.StreetViewPanorama(panoRef.current, {
       position: { lat: initialLat, lng: initialLng },
-      pov: { heading: initialHeading, pitch: 0 },
+      pov: { heading: initialHeading, pitch: initialPitch },
       zoom: 1,
       visible: true
     });
@@ -223,7 +266,7 @@ export default function App() {
     setPanoLat(initialLat);
     setPanoLng(initialLng);
     setPanoHeading(initialHeading);
-    setPanoPitch(0);
+    setPanoPitch(initialPitch);
 
     const posListener = pano.addListener('position_changed', () => {
       const pos = pano.getPosition();
@@ -330,7 +373,7 @@ export default function App() {
       panoInstanceRef.current.setPosition({ lat: roadLat, lng: roadLng });
       panoInstanceRef.current.setPov({ heading, pitch });
     }
-  }, [selectedBillboard?.id]);
+  }, [selectedBillboard?.id, mapsLoaded]);
 
   // Trigger Maps resize redraw when height changes and the DOM has completed layout
   useEffect(() => {
