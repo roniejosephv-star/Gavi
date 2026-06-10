@@ -54,6 +54,42 @@ GAVI maps physical space using a custom mathematical model to verify real-world 
 
 ---
 
+## 🖥️ GAVI Dashboard Interface & Screen Overview
+
+To map, test, and analyze visual exposure probabilities, GAVI provides a premium visual interface.
+
+### 📊 Spatial Discovery & Probability Dashboard
+Below is the dashboard showing the active 360° ingestion lens, spatial math radar canvas, and live exposure stats:
+
+<p align="center">
+  <img src="assets/gavi_dashboard_mockup.png" width="800" alt="GAVI Ingestion & Verification Console">
+</p>
+
+### 🔍 How GAVI Maps & Tests Visibility Probabilities:
+
+1. **Interactive Street View Ingestion Lens (Top Right):**
+   * Displays a live `google.maps.StreetViewPanorama` camera view. You can pan, navigate, and double-click.
+   * **Adjustable Viewport:** The container has a vertical resizer handle (drag height between `150px` and `600px` to resize) to customize layout space without rendering grey pixels.
+   * **Click-to-Select Placement:** Click anywhere inside the 360° panorama to project visual placement coordinates and facing vectors directly into the Ingress Form.
+   
+2. **Spatial Math Radar Canvas (Center Workspace):**
+   * Computes geodetic offsets to draw the **Billboard Exposure Cone** ($120^\circ$ aperture) and the **Camera POV Cone** ($90^\circ$ FOV).
+   * **Sightline locking connector:** Dynamically draws a solid green connection line labeled `SIGHTLINE LOCKED` when camera angles intersect and face the billboard, or a dashed red line if blocked or out of view.
+   * **Traffic flow simulations:** Animates vehicles (cyan dots) and pedestrians (magenta dots) moving along snapped road nodes. Particles glow upon entering active billboard exposure zones to map seen probabilities in real-time.
+   
+3. **Billboard Visibility Index (BVI) Panel (Right Sidebar):**
+   * Calculates overall visibility percentages based on distance attenuation, camera angles, travel heading directions, and VLM (Gemini 2.5 Flash) object confidence scores.
+   * Renders a color-coded status badge (`EXCELLENT` in green, `GOOD` in yellow, `POOR` in pink, `NOT VISIBLE` in gray) and gives placement suggestions (e.g., face rotation coordinates).
+
+4. **Reference Ad Creative Validation:**
+   * GAVI uploads ad designs as reference targets to detect matching visual boundaries. Below is a high-fidelity creative design asset generated for testing target brand identification:
+
+<p align="center">
+  <img src="assets/american_eagle_ad.png" width="400" alt="American Eagle Outfitters Ad Creative Reference">
+</p>
+
+---
+
 ## 🚀 Easy Local Setup & Run
 
 Follow these simple steps to set up and run GAVI locally on your machine.
