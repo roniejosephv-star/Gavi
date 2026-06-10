@@ -93,6 +93,7 @@ function fileToBase64(filePath: string): string {
   if (!fs.existsSync(filePath)) {
     return '';
   }
+  // Trigger nodemon reload
   return fs.readFileSync(filePath).toString('base64');
 }
 
@@ -214,15 +215,14 @@ export async function runBillboardVerification(
   const brandName = getBrandFromBillboard(bb);
   const promptText = `
     You are GAVI (Geographical Visualisation Intelligence), an AI spatial analyst.
-    Your task is to analyze the provided Street View image and verify if the target brand/advertiser "${brandName}" or its corresponding advertisement design is visible on any billboards, signs, or digital screens in the frame.
+    Your task is to analyze the provided Street View image and verify if the target brand/advertiser "${brandName}" or its corresponding advertisement design is visible on any outdoor billboards, signs, or digital advertising displays in the frame.
     
-    Guidelines:
-    1. Compare the Street View frame with the target ad design.
-    2. Check if the brand name "${brandName}" (logo, text, or store sign) or the exact ad design is visible on any of the billboard structures or store displays.
-    3. If there is a matching brand name, logo, or store sign visible on an advertising display, mark it as visible (visible: true).
-    4. Return a confidence score between 0.0 and 1.0.
-    5. If visible, return the bounding box coordinates [ymin, xmin, ymax, xmax] normalized to [0, 1000] mapping the outline of the billboard or sign showing the brand/ad.
-    6. Determine the occlusion type if trees, poles, or structures are blocking it.
+    CRITICAL INSTRUCTIONS FOR OUTDOOR ADVERTISING:
+    1. Only look for OUTDOOR advertising structures (e.g., billboards, roadside banners, elevated digital hoardings, gantries, transit shelter posters).
+    2. STAGE/ENVIRONMENT GUARD: If the image clearly shows an INDOOR scene (e.g., interior rooms, bathrooms, showers, bedrooms, offices, hallways), you MUST set "visible": false, "confidence": 0.0, "reasoning": "Interior indoor space detected. Outdoor billboard not visible." and leave the bounding box empty. Do not map indoor walls or objects.
+    3. REGULATORY SIGN GUARD: Ignore all regulatory road signs (e.g., "NO PARKING", "STOP", street names, speed limits, directional signs) and building name plaques/address markers (e.g., "32 RICHMOND"). Do not count these as advertisements.
+    4. BRAND VERIFICATION: Verify if the brand "${brandName}" or the uploaded advertisement design is visible. If "${brandName}" is "any matching advertisement design", you should look for any large commercial advertising billboard in the image.
+    5. BOUNDING BOX ACCURACY: If a matching billboard/sign is visible, return its bounding box coordinates [ymin, xmin, ymax, xmax] normalized to [0, 1000]. The box must cover only the active advertisement panel, not the entire building or sky.
   `;
 
   const parts: any[] = [
@@ -395,10 +395,14 @@ export async function discoverBillboardsAtLocation(
     // Call Gemini VLM to find billboards
     const promptText = `
       You are GAVI (Geographical Visualisation Intelligence), an AI spatial analyst.
-      Your task is to analyze the provided Street View image looking at heading ${h} degrees and detect if there are any billboard advertisement structures or panels.
+      Your task is to analyze the provided Street View image looking at heading ${h} degrees and detect if there are any outdoor billboard advertisement structures, hoardings, or panels.
       
-      Look for signs, highway displays, or storefront ad panels.
-      Return a JSON response matching the schema.
+      CRITICAL INSTRUCTIONS FOR BILLBOARD DETECTION:
+      1. Only detect OUTDOOR commercial advertising billboards, roadside hoardings, gantries, digital screens, or major facade advertising panels.
+      2. STAGE/ENVIRONMENT GUARD: If the image depicts an INDOOR space (e.g., rooms, bathrooms, offices), you MUST set "has_billboard": false and "confidence": 0.0.
+      3. REGULATORY SIGN GUARD: Ignore all non-advertising street signage, such as "No Parking", "One Way", "Stop" signs, traffic signals, street name plates, or building door/number plaques.
+      4. Return "has_billboard": true only if a genuine commercial advertising display is visible.
+      5. Bounding box coordinates [ymin, xmin, ymax, xmax] must be normalized to [0, 1000] and tightly crop the advertising display panel.
     `;
 
     try {

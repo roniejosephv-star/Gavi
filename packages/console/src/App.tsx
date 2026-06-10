@@ -285,8 +285,50 @@ export default function App() {
   // Update existing panorama location when a new billboard is selected
   useEffect(() => {
     if (panoInstanceRef.current && selectedBillboard) {
-      panoInstanceRef.current.setPosition({ lat: selectedBillboard.lat, lng: selectedBillboard.lng });
-      panoInstanceRef.current.setPov({ heading: selectedBillboard.observed_bearing ?? selectedBillboard.orientation_degrees, pitch: 0 });
+      // 1. Try to extract road coordinates from cached streetview image path
+      let roadLat = selectedBillboard.lat;
+      let roadLng = selectedBillboard.lng;
+      let heading = selectedBillboard.observed_bearing ?? selectedBillboard.orientation_degrees;
+      let pitch = 0;
+      let solved = false;
+
+      if (selectedBillboard.streetview_image_path) {
+        // Filenames look like: billboardId_roadLat_roadLng.jpg
+        const match = selectedBillboard.streetview_image_path.match(/_(-?\d+\.\d+)_(-?\d+\.\d+)\.jpg$/);
+        if (match) {
+          roadLat = parseFloat(match[1]);
+          roadLng = parseFloat(match[2]);
+          // Calculate heading/pitch from the snapped road coordinates back to the billboard
+          const cameraHeight = 1.5;
+          const dy = selectedBillboard.lat - roadLat;
+          const dx = (selectedBillboard.lng - roadLng) * Math.cos(roadLat * Math.PI / 180);
+          let bearingToBb = Math.atan2(dx, dy) * 180 / Math.PI;
+          if (bearingToBb < 0) bearingToBb += 360;
+
+          heading = bearingToBb;
+          
+          // Pitch vertical angle calculation
+          const distDegrees = Math.sqrt(dx * dx + dy * dy);
+          const distMeters = distDegrees * 111111;
+          const hDiff = selectedBillboard.height_agl - cameraHeight;
+          pitch = (Math.atan2(hDiff, distMeters) * 180) / Math.PI;
+          solved = true;
+        }
+      }
+
+      // 2. Fallback to calculated offset (30m in front of billboard face normal)
+      if (!solved) {
+        const bearing = selectedBillboard.observed_bearing ?? selectedBillboard.orientation_degrees;
+        const rad = (bearing * Math.PI) / 180;
+        const offsetDistance = 30; // 30 meters
+        roadLat = selectedBillboard.lat + (offsetDistance * Math.cos(rad)) / 111111;
+        roadLng = selectedBillboard.lng + (offsetDistance * Math.sin(rad)) / (111111 * Math.cos(selectedBillboard.lat * Math.PI / 180));
+        heading = (bearing + 180) % 360;
+        pitch = 10; // slightly tilted up
+      }
+
+      panoInstanceRef.current.setPosition({ lat: roadLat, lng: roadLng });
+      panoInstanceRef.current.setPov({ heading, pitch });
     }
   }, [selectedBillboard?.id]);
 
@@ -832,15 +874,21 @@ export default function App() {
           max_range_meters: payload.max_range_meters,
           validation_status: 'PENDING'
         };
+        const rad = (payload.orientation_degrees * Math.PI) / 180;
+        const offsetDistance = 30; // 30 meters
+        const roadLat = payload.lat + (offsetDistance * Math.cos(rad)) / 111111;
+        const roadLng = payload.lng + (offsetDistance * Math.sin(rad)) / (111111 * Math.cos(payload.lat * Math.PI / 180));
+        const headingToBb = (payload.orientation_degrees + 180) % 360;
+
         setSelectedBillboard(newBillboard);
-        setPanoLat(payload.lat);
-        setPanoLng(payload.lng);
-        setPanoHeading(payload.orientation_degrees);
+        setPanoLat(roadLat);
+        setPanoLng(roadLng);
+        setPanoHeading(headingToBb);
         setViewMode('interactive');
 
         if (panoInstanceRef.current) {
-          panoInstanceRef.current.setPosition({ lat: payload.lat, lng: payload.lng });
-          panoInstanceRef.current.setPov({ heading: payload.orientation_degrees, pitch: 0 });
+          panoInstanceRef.current.setPosition({ lat: roadLat, lng: roadLng });
+          panoInstanceRef.current.setPov({ heading: headingToBb, pitch: 10 });
         }
 
         fetchApiData();
