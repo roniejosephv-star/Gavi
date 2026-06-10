@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Geographical Visualisation Intelligence Monorepo",
   "private": true,
+  "license": "(MIT OR Apache-2.0)",
   "workspaces": [
     "packages/*"
   ],

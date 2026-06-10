@@ -1,6 +1,7 @@
 {
   "name": "@gavi/math",
   "version": "1.0.0",
+  "license": "(MIT OR Apache-2.0)",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
