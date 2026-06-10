@@ -1,0 +1,70 @@
+/* Custom CSS for GAVI Dashboard */
+:root {
+  --bg-color: #080710;
+  --bg-card: rgba(18, 16, 32, 0.6);
+  --border-glow: rgba(0, 242, 254, 0.15);
+  --neon-cyan: hsl(180, 100%, 50%);
+  --neon-magenta: hsl(320, 100%, 50%);
+  --neon-yellow: hsl(50, 100%, 50%);
+  --text-slate: #8f9bb3;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  color: #ffffff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+}
+
+/* Glassmorphism containers */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  padding: 20px;
+}
+
+.glow-cyan {
+  text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.glow-magenta {
+  text-shadow: 0 0 10px var(--neon-magenta);
+}
+
+.glow-yellow {
+  text-shadow: 0 0 10px var(--neon-yellow);
+}
+
+.glow-border-cyan:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+.pulse-glow {
+  animation: pulse 3s infinite ease-in-out;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-cyan);
+}

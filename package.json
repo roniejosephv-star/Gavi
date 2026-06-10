@@ -1,0 +1,21 @@
+{
+  "name": "gavi-monorepo",
+  "version": "1.0.0",
+  "description": "Geographical Visualisation Intelligence Monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "dev:api": "npm run dev --workspace=packages/api",
+    "dev:console": "npm run dev --workspace=packages/console",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:console\"",
+    "start": "npm run start --workspace=packages/api"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  }
+}

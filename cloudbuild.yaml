@@ -1,0 +1,38 @@
+steps:
+  # 1. Build the Docker image for the GAVI monorepo
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', '$_AR_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/gavi-agent:latest',
+      '.'
+    ]
+
+  # 2. Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      '$_AR_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/gavi-agent:latest'
+    ]
+
+  # 3. Deploy the container to Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'run', 'deploy', 'gavi-agent-service',
+      '--image', '$_AR_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/gavi-agent:latest',
+      '--region', '$_RUN_REGION',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '3001'
+    ]
+
+images:
+  - '$_AR_REGION-docker.pkg.dev/$PROJECT_ID/$_AR_REPO/gavi-agent:latest'
+
+substitutions:
+  _AR_REGION: 'us-central1'
+  _AR_REPO: 'gavi-registry'
+  _RUN_REGION: 'us-central1'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

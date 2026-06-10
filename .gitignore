@@ -1,0 +1,27 @@
+# Dependency folders
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Environment configurations
+.env
+.env.local
+.env.*.local
+
+# Databases & SQLite
+*.db
+*.sqlite
+gavi.db
+
+# Dynamic caches and files
+storage/streetview/
+packages/api/storage/
+
+# OS/System files
+.DS_Store
+Thumbs.db
