@@ -82,10 +82,10 @@ Below is the dashboard showing the active 360° ingestion lens, spatial math rad
    * Renders a color-coded status badge (`EXCELLENT` in green, `GOOD` in yellow, `POOR` in pink, `NOT VISIBLE` in gray) and gives placement suggestions (e.g., face rotation coordinates).
 
 4. **Reference Ad Creative Validation:**
-   * GAVI uploads ad designs as reference targets to detect matching visual boundaries. Below is a high-fidelity creative design asset generated for testing target brand identification:
+   * GAVI uploads ad designs as reference targets to detect matching visual boundaries. Below is the uploaded target advertisement design screenshot used for testing target brand identification:
 
 <p align="center">
-  <img src="assets/american_eagle_ad.png" width="400" alt="American Eagle Outfitters Ad Creative Reference">
+  <img src="assets/BimBillboard_screenshot.png" width="500" alt="Uploaded Billboard Ad Design">
 </p>
 
 ---
