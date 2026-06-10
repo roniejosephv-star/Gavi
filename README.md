@@ -2,11 +2,18 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Cohort-Google_Antler_2026-brightgreen?style=for-the-badge&logo=google" alt="Google Antler Cohort">
-  <img src="https://img.shields.io/badge/System-Geospatial_Visibility_Engine-blue?style=for-the-badge" alt="Geospatial Visibility">
-  <img src="https://img.shields.io/badge/Aesthetics-Cyberpunk_Neon-purple?style=for-the-badge" alt="Cyberpunk Neon">
+  <a href="LICENSE-MIT"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="MIT License"></a>
+  <a href="LICENSE-APACHE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge" alt="Apache 2.0 License"></a>
+  <img src="https://img.shields.io/badge/System-Geospatial_Visibility_Engine-blueviolet?style=for-the-badge" alt="Geospatial Visibility">
 </p>
 
-Welcome to the command center for **GAVI (Geographical Visualisation Intelligence)**. GAVI is a spatial analytics and visual verification engine designed to ingest billboard parameters, fetch perspective frames from Google Maps 360° Street View, use the Gemini 2.5 Flash VLM to validate real-world brand visibility, and compute traffic-adjusted exposure metrics.
+---
+
+## 🛸 About GAVI
+
+**GAVI (Geographical Visualisation Intelligence)** is a spatial analytics and visual verification engine designed to ingest billboard parameters, fetch perspective frames from Google Maps 360° Street View, use the Gemini 2.5 Flash VLM to validate real-world brand visibility, and compute traffic-adjusted exposure metrics.
+
+GAVI is **dual-licensed** under the permissive **MIT License** and the robust **Apache License 2.0 (Google Standard Open Source Regulation)**. This dual-licensing grants maximum utilization freedom for developers while ensuring necessary patent grants, contributor protections, and trademark security for the GAVI core system.
 
 ---
 
